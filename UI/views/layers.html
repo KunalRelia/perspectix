@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="../js/getAddress.js"></script>
     <style>
       html, body {
         height: 100%;
@@ -24,15 +25,21 @@
       
       function initMap() {          
         mapboxUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-        var ny = L.marker([40.730610,-73.935242]).bindPopup('This is New York.'),
-            ts    = L.marker([40.759011, -73.984472]).bindPopup('This is TimeSquare.');
+        var ny = L.marker([40.730610,-73.935242]);
+        var ts    = L.marker([40.759011, -73.984472]);
+          
+        fetchAddress(40.730610,-73.935242,ny);
+        fetchAddress(40.759011, -73.984472,ts);
+        
+        
+        
+          
         var cities = L.layerGroup([ny,ts]);
         var grayscale = L.tileLayer(mapboxUrl, {id: 'examples.map-zr0njcqy', 
                                                 accessToken: 'sk.eyJ1Ijoic2Fuaml0aGEiLCJhIjoiY2luM251OWs2MGMwN3ZvbHVhaGd2dzJhZyJ9.jZWpHObI1JLKhTa3mCZLhw'}),
         streets   = L.tileLayer(mapboxUrl, {id: 'examples.map-zr0njcqy',
                                             accessToken: 'sk.eyJ1Ijoic2Fuaml0aGEiLCJhIjoiY2luM251OWs2MGMwN3ZvbHVhaGd2dzJhZyJ9.jZWpHObI1JLKhTa3mCZLhw'});
 
-        //attribution: mapboxAttribution, 
         var map = L.map('map', {
             center: [40.783060, -73.971249],
             zoom: 12,
@@ -47,7 +54,7 @@
             "Cities": cities
         };
         L.control.layers(baseMaps, overlayMaps).addTo(map);
-        
+                
       }
         
     </script>
