@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import csv     # imports the csv module
-import sys      # imports the sys module
+import sys, os      # imports the sys module
 import urllib2
 import json
 import StringIO
