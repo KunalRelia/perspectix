@@ -11,5 +11,17 @@
 
 #####Output 
 1. Trip & Fare Join Nov2013
-  *[Part0](https://s3.amazonaws.com/perspectix/output_emr/nov13_trip_fare_join/part-00000)
-  *[Part1](https://s3.amazonaws.com/perspectix/output_emr/nov13_trip_fare_join/part-00001)
+  * [Part0](https://s3.amazonaws.com/perspectix/output_emr/nov13_trip_fare_join/part-00000)
+  * [Part1](https://s3.amazonaws.com/perspectix/output_emr/nov13_trip_fare_join/part-00001)
+
+2. Trip & Fare Join Dec2013
+  * [Part0](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00000)
+  * [Part1](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00001)
+  * [Part2](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00002)
+  * [Part3](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00003)
+  * [Part4](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00004)
+  * [Part5](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00005)
+  * [Part6](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00006)
+  * [Part7](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00007)
+  * [Part8](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00008)
+  * [Part9](https://s3.amazonaws.com/perspectix/output_emr/dec13_trip_fare_join/part-00009)
