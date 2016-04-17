@@ -51,16 +51,20 @@ def main():
     '''
     get_nyc_bounds()
     for line in sys.stdin:
+        if ("trip" not in os.environ['mapreduce_map_input_file']):
+            continue
         csv_file = StringIO.StringIO(line.strip())
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:   # iterates the rows of the file in orders
-                if ("medallion" in row):
-                    continue
+            if ("medallion" in row):
+                continue
+            try:
                 pick = map(float,row[-4:-2])
                 drop = map(float,row[-2:])
-                if(is_in_nyc(pick) and is_in_nyc(drop)):
-                    print ",".join(row)
-
+            except ValueError:
+                continue
+            if(is_in_nyc(pick) and is_in_nyc(drop)):
+                print ",".join(row)
     
 if __name__ == '__main__':
     main()
