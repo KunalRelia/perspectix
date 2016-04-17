@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import sys
-header=0
+#header=0 if headers are present
+header=1
 for line in sys.stdin:
 	if(header==0):
 		header=1
