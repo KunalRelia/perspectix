@@ -1,53 +1,25 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Simple Map</title>
-    <meta name="viewport" content="initial-scale=1.0">
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
-    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.17.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.17.0/mapbox-gl.css' rel='stylesheet' />
     <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        height: 100%;
-      }
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
     <script>
-      var map;
-      
-      function initMap() {
-        
-          
-        var map = L.map('map').setView([40.730610,-73.935242], 13);
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-            maxZoom: 18,
-            id: 'examples.map-zr0njcqy',
-            accessToken: 'sk.eyJ1Ijoic2Fuaml0aGEiLCJhIjoiY2luM251OWs2MGMwN3ZvbHVhaGd2dzJhZyJ9.jZWpHObI1JLKhTa3mCZLhw'
-        }).addTo(map);
-        
-        var popup = L.popup();
-        function onMapClick(e) {
-            popup
-                .setLatLng(e.latlng)
-                .setContent("You clicked the map at " + e.latlng.toString())
-                .openOn(map);
-        }
-        map.on('click', onMapClick);  
-        var marker = L.marker([40.730610,-73.935242]).addTo(map);
-        marker.bindPopup("<b>Start location:</b><br>XYZ").openPopup();
-        
-      }
-        
+        /**
+        *  Define module name here
+        */
+        var source = 'markercluster';
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDe4htcB5CXakDLMSXxMpITqQ8_VtjDyZ4&callback=initMap"
-    async defer></script>
-  </body>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="/js/index.js"></script>
+</body>
 </html>

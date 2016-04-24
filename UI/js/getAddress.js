@@ -1,4 +1,3 @@
-
 function fetchAddress(latitude,longitude,marker) {
 	
     var geocoder = new google.maps.Geocoder();  
