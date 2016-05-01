@@ -1,13 +1,33 @@
 #!/usr/bin/env python
 
+
 import StringIO
 import csv  # imports the csv module
 import json
 import os
 import sys
 import urllib2
+from math import sin, cos, sqrt, atan2, radians
 
-polygons = []
+
+polygons= []
+def calculateDistance(pickupLat,pickupLon,dropLat,dropLon):
+	R = 3959
+
+	lat1 = radians(pickupLat)
+	lon1 = radians(pickupLon)
+	lat2 = radians(dropLat)
+	lon2 = radians(dropLon)
+
+	dlon = lon2 - lon1
+	dlat = lat2 - lat1
+
+	a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+	c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+	distance = R * c
+
+	return distance
 
 
 def is_left(p0, p1, p2):
@@ -96,6 +116,8 @@ def main():
             except ValueError:
                 continue
             if is_in_nyc(pick) and is_in_nyc(drop):
+		distance = calculateDistance(pick[0],pick[1],drop[0],drop[1])
+		row[-5] = str(distance)
                 print ",".join(row)
 
 

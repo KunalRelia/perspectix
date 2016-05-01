@@ -3,6 +3,6 @@
 import sys, os
 
 for line in sys.stdin:
-    if "trip" not in os.environ['mapreduce_map_input_file']:
+    if "trip" in line:
         continue
     print line.strip()
