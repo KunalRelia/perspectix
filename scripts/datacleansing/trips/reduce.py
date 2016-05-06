@@ -2,32 +2,32 @@
 
 
 import StringIO
-import csv  # imports the csv module
+import csv
 import json
-import os
 import sys
 import urllib2
 from math import sin, cos, sqrt, atan2, radians
 
+polygons = []
 
-polygons= []
-def calculateDistance(pickupLat,pickupLon,dropLat,dropLon):
-	R = 3959
 
-	lat1 = radians(pickupLat)
-	lon1 = radians(pickupLon)
-	lat2 = radians(dropLat)
-	lon2 = radians(dropLon)
+def calculatedistance(pickuplat, pickuplon, droplat, droplon):
+    R = 3959
 
-	dlon = lon2 - lon1
-	dlat = lat2 - lat1
+    lat1 = radians(pickuplat)
+    lon1 = radians(pickuplon)
+    lat2 = radians(droplat)
+    lon2 = radians(droplon)
 
-	a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-	c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
 
-	distance = R * c
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
-	return distance
+    distance = R * c
+
+    return distance
 
 
 def is_left(p0, p1, p2):
@@ -54,7 +54,8 @@ def wn_PnPoly(P, V):
 
 
 def get_nyc_bounds():
-    url = "http://catalog.civicdashboards.com/dataset/e5bbe399-aee4-45d4-a7d3-d6ece7f18bf4/resource/a31b967f-3df2-47da-ac67-50fa420f9cb2/download/9a2703e0737d4aab855017ff2d636603nycboroughboundaries.geojson"
+    url = "http://catalog.civicdashboards.com/dataset/e5bbe399-aee4-45d4-a7d3-d6ece7f18bf4/resource/" \
+          "a31b967f-3df2-47da-ac67-50fa420f9cb2/download/9a2703e0737d4aab855017ff2d636603nycboroughboundaries.geojson"
     req = urllib2.Request(url, headers={'User-Agent': "Magic Browser"})
     con = urllib2.urlopen(req)
     data = json.loads(con.read(), )
@@ -99,10 +100,18 @@ def is_in_bronx(p):
     return is_in_nyc(p, "Bronx")
 
 
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except:
+        return False
+
+
 def main():
-    '''
+    """
     Input file: trip data
-    '''
+    """
     get_nyc_bounds()
     for line in sys.stdin:
         csv_file = StringIO.StringIO(line.strip())
@@ -115,10 +124,14 @@ def main():
                 drop = map(float, row[-2:])
             except ValueError:
                 continue
-            if is_in_nyc(pick) and is_in_nyc(drop):
-		distance = calculateDistance(pick[0],pick[1],drop[0],drop[1])
-		row[-5] = str(distance)
-                print ",".join(row)
+            # added the condition to remove outliers (straight line dist > 8 miles)
+            # and also checked if trip_dist > straight line dist
+            if isfloat(row[-5]):
+                if float(row[-5]) > calculatedistance(pick[0], pick[1], drop[0], drop[1]) and calculatedistance(pick[0],
+                                                                                                            pick[1],
+                                                                                                            drop[0],
+                                                                                                            drop[1]) <= 8 and is_in_nyc(pick) and is_in_nyc(drop):
+                    print ",".join(row)
 
 
 if __name__ == '__main__':

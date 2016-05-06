@@ -6,4 +6,4 @@ for line in sys.stdin:
 
     key, valueList = line.strip().split("\t", 1)
 
-    print "%s" %(key)
+    print "%s" % key

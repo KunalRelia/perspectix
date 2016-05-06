@@ -2,18 +2,21 @@
 
 import sys
 
-def convertToDate(val):
+
+def converttodate(val):
     return val.strip().split(' ')[0]
+
 
 # input comes from STDIN (standard input)
 for line in sys.stdin:
     line = line.strip()
-    
-    key,value = line.split('\t',1)
+
+    key, value = line.split('\t', 1)
     keys = key.split(',')
     medallion = keys[0]
-    pickupDay = convertToDate(keys[3])
+    pickupDay = converttodate(keys[3])
     columns = value.split(",")
     totalAmount = float(columns[-1])
-    print '%s,%s\t%s' % (medallion,pickupDay,totalAmount)
-
+    # we will consider only those trips where total amount > 0
+    if totalAmount > 0:
+        print '%s,%s\t%s' % (medallion, pickupDay, totalAmount)
