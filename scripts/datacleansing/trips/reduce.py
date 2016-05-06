@@ -6,49 +6,29 @@ import csv
 import json
 import sys
 import urllib2
-from math import sin, cos, sqrt, atan2, radians
 
 polygons = []
-
-
-def calculatedistance(pickuplat, pickuplon, droplat, droplon):
-    R = 3959
-
-    lat1 = radians(pickuplat)
-    lon1 = radians(pickuplon)
-    lat2 = radians(droplat)
-    lon2 = radians(droplon)
-
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-    distance = R * c
-
-    return distance
 
 
 def is_left(p0, p1, p2):
     return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p2[0] - p0[0]) * (p1[1] - p0[1])
 
 
-def wn_PnPoly(P, V):
+def wn_point_in_poly(point, polygon):
     wn = 0  # the winding number counter
 
     # repeat the first vertex at end
-    V = tuple(V[:]) + (V[0],)
+    polygon = tuple(polygon[:]) + (polygon[0],)
 
     # loop through all edges of the polygon
-    for i in range(len(V) - 1):  # edge from V[i] to V[i+1]
-        if V[i][1] <= P[1]:  # start y <= P[1]
-            if V[i + 1][1] > P[1]:  # an upward crossing
-                if is_left(V[i], V[i + 1], P) > 0:  # P left of edge
+    for i in range(len(polygon) - 1):  # edge from V[i] to V[i+1]
+        if polygon[i][1] <= point[1]:  # start y <= P[1]
+            if polygon[i + 1][1] > point[1]:  # an upward crossing
+                if is_left(polygon[i], polygon[i + 1], point) > 0:  # P left of edge
                     wn += 1  # have a valid up intersect
         else:  # start y > P[1] (no test needed)
-            if V[i + 1][1] <= P[1]:  # a downward crossing
-                if is_left(V[i], V[i + 1], P) < 0:  # P right of edge
+            if polygon[i + 1][1] <= point[1]:  # a downward crossing
+                if is_left(polygon[i], polygon[i + 1], point) < 0:  # P right of edge
                     wn -= 1  # have a valid down intersect
     return wn
 
@@ -72,40 +52,41 @@ def get_nyc_bounds():
     return data
 
 
-def is_in_nyc(p, borough=None):
+def check_bounds_in(p, borough=None):
     i = 0
     for polygon in polygons:
         if borough is not None:
             if borough not in polygon[0]:
                 continue
-        if wn_PnPoly(p, polygon[1]) != 0:
+        if wn_point_in_poly(p, polygon[1]) != 0:
             return [True, i]
         i += 1
     return False
 
 
 def is_in_manhattan(p):
-    return is_in_nyc(p, "Manhattan")
+    return check_bounds_in(p, "Manhattan")
 
 
 def is_in_queens(p):
-    return is_in_nyc(p, "Queens")
+    return check_bounds_in(p, "Queens")
 
 
 def is_in_bkln(p):
-    return is_in_nyc(p, "Brooklyn")
+    return check_bounds_in(p, "Brooklyn")
 
 
 def is_in_bronx(p):
-    return is_in_nyc(p, "Bronx")
+    return check_bounds_in(p, "Bronx")
 
 
-def isfloat(value):
-    try:
-        float(value)
+def in_nyc(p):
+    if is_in_manhattan(p):
         return True
-    except:
-        return False
+    elif is_in_queens(p):
+        return True
+    elif is_in_bkln(p):
+        return is_in_bronx(p)
 
 
 def main():
@@ -114,6 +95,7 @@ def main():
     """
     get_nyc_bounds()
     for line in sys.stdin:
+        line = line.strip('\t', 2)[1]
         csv_file = StringIO.StringIO(line.strip())
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:  # iterates the rows of the file in orders
@@ -124,14 +106,8 @@ def main():
                 drop = map(float, row[-2:])
             except ValueError:
                 continue
-            # added the condition to remove outliers (straight line dist > 8 miles)
-            # and also checked if trip_dist > straight line dist
-            if isfloat(row[-5]):
-                if float(row[-5]) > calculatedistance(pick[0], pick[1], drop[0], drop[1]) and calculatedistance(pick[0],
-                                                                                                            pick[1],
-                                                                                                            drop[0],
-                                                                                                            drop[1]) <= 8 and is_in_nyc(pick) and is_in_nyc(drop):
-                    print ",".join(row)
+            if in_nyc(pick) and in_nyc(drop):
+                print ",".join(row)
 
 
 if __name__ == '__main__':
