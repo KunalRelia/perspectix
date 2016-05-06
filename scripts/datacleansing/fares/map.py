@@ -35,4 +35,4 @@ for line in sys.stdin:
             l2 = [fareAmount, surcharge, mtaTax, tipAmount, tollsAmount, totalAmount]
             print '%s,%s\t%s' % (','.join(keyList), ','.join(format(x, ".2f") for x in l2), 1)
         except ValueError:
-            raise
+            continue
