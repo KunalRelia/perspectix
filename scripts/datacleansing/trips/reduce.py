@@ -8,6 +8,39 @@ import sys
 import urllib2
 
 polygons = []
+manhattan = [
+    [-73.9325, 40.88029],
+    [- 74.0178, 40.7561],
+    [- 74.0324, 40.69548],
+    [- 73.97335, 40.70693],
+    [- 73.9545, 40.75186],
+    [- 73.91706, 40.78858],
+    [- 73.92117, 40.84862],
+    [- 73.89819, 40.87378]
+]
+queens = [
+    [-73.96683, 40.73321],
+    [- 73.87207, 40.63428],
+    [- 73.88649, 40.61082],
+    [- 73.87207, 40.58736],
+    [- 73.96889, 40.54511],
+    [- 73.70865, 40.52946],
+    [- 73.70865, 40.66215],
+    [- 73.6785, 40.73045],
+    [- 73.7715, 40.81249],
+    [- 73.83816, 40.80241],
+    [- 73.8999, 40.79927],
+    [- 73.93858, 40.78163]
+]
+brooklyn = [
+    [-73.96133, 40.7457],
+    [- 73.88134, 40.72514],
+    [- 73.81989, 40.64574],
+    [- 73.88403, 40.61841],
+    [- 73.87207, 40.57772],
+    [- 74.02644, 40.55348],
+    [- 74.04295, 40.66957]
+]
 
 
 def is_left(p0, p1, p2):
@@ -53,27 +86,31 @@ def get_nyc_bounds():
 
 
 def check_bounds_in(p, borough=None):
-    i = 0
     for polygon in polygons:
         if borough is not None:
             if borough not in polygon[0]:
                 continue
         if wn_point_in_poly(p, polygon[1]) != 0:
-            return [True, i]
-        i += 1
+            return True
     return False
 
 
 def is_in_manhattan(p):
-    return check_bounds_in(p, "Manhattan")
+    if wn_point_in_poly(p, manhattan) != 0:
+        return check_bounds_in(p, "Manhattan")
+    return False
 
 
 def is_in_queens(p):
-    return check_bounds_in(p, "Queens")
+    if wn_point_in_poly(p, queens) != 0:
+        return check_bounds_in(p, "Queens")
+    return False
 
 
 def is_in_bkln(p):
-    return check_bounds_in(p, "Brooklyn")
+    if wn_point_in_poly(p, brooklyn) != 0:
+        return check_bounds_in(p, "Brooklyn")
+    return False
 
 
 def is_in_bronx(p):
@@ -83,10 +120,11 @@ def is_in_bronx(p):
 def in_nyc(p):
     if is_in_manhattan(p):
         return True
-    elif is_in_queens(p):
+    if is_in_queens(p):
         return True
-    elif is_in_bkln(p):
-        return is_in_bronx(p)
+    if is_in_bkln(p):
+        return True
+    return is_in_bronx(p)
 
 
 def main():
@@ -95,7 +133,10 @@ def main():
     """
     get_nyc_bounds()
     for line in sys.stdin:
-        line = line.strip('\t', 2)[1]
+        key, line = line.split('\t', 2)
+        if key.strip() == '0':
+            print line.strip()
+            continue
         csv_file = StringIO.StringIO(line.strip())
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:  # iterates the rows of the file in orders
