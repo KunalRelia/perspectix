@@ -17,7 +17,8 @@ current_card_payments = 0
 def emit():
     print "%s\t%d,%d,%d,%d,%d,%d,%d,%d,%d" % (current_key, trip_count, current_num_passengers, current_total_time,
                                               current_total_distance, current_total_amount, current_total_toll,
-                                              current_total_tips, current_cash_payments, current_card_payments)
+                                              current_total_tips, current_cash_payments, current_card_payments,
+                                              )
 
 
 print "pickup_date,medallion\ttotal_trips,total_passengers_driven,total_time_driven,total_distance,total_amount," \

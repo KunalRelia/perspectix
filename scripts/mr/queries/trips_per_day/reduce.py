@@ -33,9 +33,9 @@ for line in sys.stdin:
         current_day_total_amount += total_amount
     else:
         if current_day:
-            print "%s\t%s,%s,%s,%s,%s,%s" % (
+            print "%s\t%s,%s,%s,%s,%s" % (
                 current_day, current_day_sum, current_day_total_distance, current_day_tips, current_day_toll,
-                current_day_total_amount, str(round(current_day_total_amount / current_day_total_distance, 0)))
+                current_day_total_amount)
 
         current_day = day
         current_day_sum = count
@@ -50,7 +50,6 @@ for line in sys.stdin:
 # total toll paid(to see if certain periods have more visitors across the bridge),
 # total amount collected(to see if weekends earn more money or holidays are more fruitful for drivers),
 # fare per mile (to see if fares are spiked during holiday season)
-print "%s\t%s,%s,%s,%s,%s,%s" % (
+print "%s\t%s,%s,%s,%s,%s" % (
     current_day, current_day_sum, current_day_total_distance, current_day_tips, current_day_toll,
-    current_day_total_amount,
-    str(round(current_day_total_amount / current_day_total_distance, 0)))
+    current_day_total_amount)

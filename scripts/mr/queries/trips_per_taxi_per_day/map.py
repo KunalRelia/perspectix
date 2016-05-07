@@ -22,9 +22,9 @@ for line in sys.stdin:
         total_amt, total_toll, tip_amt = (int(values[-1]), int(values[-2]), int(values[-3]))
     except ValueError:
         continue
+    if trip_dist > 50 * 1609:
+        continue
     payment_type = values[-7].strip()
-    # we will consider only those trips where total amount > 0
-    if total_amt > 0:
-        print '%s,%s\t%d,%d,%d,%d,%d,%d,%s' % (pickupDay, medallion,
-                                               passenger_count, trip_time, trip_dist, total_amt,
-                                               total_toll, tip_amt, payment_type)
+    print '%s,%s\t%d,%d,%d,%d,%d,%d,%s' % (pickupDay, medallion,
+                                           passenger_count, trip_time, trip_dist, total_amt,
+                                           total_toll, tip_amt, payment_type)

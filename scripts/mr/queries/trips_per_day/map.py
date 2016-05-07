@@ -22,7 +22,8 @@ for line in sys.stdin:
         total_distance = int(values[5])
     except ValueError:
         total_distance = 0
-
+    if total_distance > 50 * 1609:
+        continue
     try:
         tips = int(values[-3])
     except ValueError:

@@ -53,7 +53,9 @@ for line in sys.stdin:
     straight_line_dist = calculate_distance(pick, drop)
     if straight_line_dist <= 0:
         continue
-    if distance < math.floor(straight_line_dist):
+    # distance > 50 conditional was not checked for cleaned output,
+    # handling during querying
+    if distance < math.floor(straight_line_dist) or distance > 50:
         continue
     distance = int(straight_line_dist * 1609.34) if distance == 0 else int(distance * 1609.34)
     # If distance in meters is zero i.e. less than 1 m skip this trip
