@@ -32,6 +32,7 @@ def valid_trip_time(pickup, dropoff):
         return False
     return p < d
 
+count = 0
 
 for line in sys.stdin:
     if "trip" in line:
@@ -54,8 +55,10 @@ for line in sys.stdin:
         continue
     if distance < math.floor(straight_line_dist):
         continue
+    distance = int(straight_line_dist * 1609.34) if distance == 0 else int(distance * 1609.34)
+    # If distance in meters is zero i.e. less than 1 m skip this trip
     if distance == 0:
-        row[-5] = str(straight_line_dist)
-        print "1\t%s" % (",".join(row))
-    else:
-        print "1\t%s" % line.strip()
+        continue
+    row[-5] = str(distance)
+    print "%d\t%s" % (count, ",".join(row))
+    count += 1

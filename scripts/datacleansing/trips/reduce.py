@@ -133,10 +133,7 @@ def main():
     """
     get_nyc_bounds()
     for line in sys.stdin:
-        key, line = line.split('\t', 2)
-        if key.strip() == '0':
-            print line.strip()
-            continue
+        key, line = line.split('\t', 1)
         csv_file = StringIO.StringIO(line.strip())
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:  # iterates the rows of the file in orders
