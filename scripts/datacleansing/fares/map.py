@@ -3,18 +3,19 @@
 import sys
 
 
-def converttocents(val):
+def convert_to_cents(val):
     val = float(val)
     if val > 0:
         val *= 100
     else:
         val = 0
-    return val
+    return int(val)
 
 
-def calTotalAmount(fare, sur, tax, tip, toll):
+def calc_total_amount(fare, sur, tax, tip, toll):
     return fare + sur + tax + tip + toll
 
+count = 0
 
 for line in sys.stdin:
     line = line.strip()
@@ -23,16 +24,10 @@ for line in sys.stdin:
     else:
         columns = line.split(',')
         try:
-            fareAmount = converttocents(columns[5])
-            surcharge = converttocents(columns[6])
-            mtaTax = converttocents(columns[7])
-            tipAmount = converttocents(columns[8])
-            tollsAmount = converttocents(columns[9])
+            l2 = list(convert_to_cents(x) for x in columns[5:-1])
+            l2.append(sum(l2))
 
-            totalAmount = calTotalAmount(fareAmount, surcharge, mtaTax, tipAmount, tollsAmount)
-
-            keyList = [columns[0], columns[1], columns[2], columns[3], columns[4]]
-            l2 = [fareAmount, surcharge, mtaTax, tipAmount, tollsAmount, totalAmount]
-            print '%s,%s\t%s' % (','.join(keyList), ','.join(format(x, ".2f") for x in l2), 1)
+            print '%d\t%s,%s' % (count, ','.join(columns[:5]), ','.join(str(x) for x in l2))
+            count += 1
         except ValueError:
             continue
