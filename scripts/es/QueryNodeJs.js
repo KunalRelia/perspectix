@@ -1,11 +1,11 @@
 var Elasticsearch = require('c:/users/Sanju/AppData/Roaming/npm/node_modules/aws-es');
 
 elasticsearch = new Elasticsearch({
-		accessKeyId: 'AKIAJKITYVEXMYVRRJ2A',
-		secretAccessKey: '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',
+		accessKeyId: <id>',
+		secretAccessKey: <key>,
 		service: 'es',
-		region: 'us-west-2',
-		host: 'search-perspectix-3p663ekdctlax3ve6gqmrel6kq.us-west-2.es.amazonaws.com'
+		region: <region>,
+		host: <host>
 });
 
 elasticsearch.mget({
