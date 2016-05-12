@@ -21,8 +21,9 @@ for line in sys.stdin:
         columns = line.split(',')
         try:
             l2 = list(convert_to_cents(x) for x in columns[5:-1])
-            #remove all tuples with total amount > $500, possible outliers
-            if (temp_total_amount=sum(l2))>50000:
+            # remove all tuples with total amount > $500, possible outliers
+            temp_total_amount = sum(l2)
+            if temp_total_amount > 50000:
                 continue
             l2.append(temp_total_amount)
 

@@ -32,12 +32,13 @@ def valid_trip_time(pickup, dropoff):
         return False
     return p < d
 
+
 count = 0
 
 for line in sys.stdin:
     if "trip" in line:
         continue
-    row = line.split(',')
+    row = line.strip().split(',')
     pickupDate = row[5]
     dropoffDate = row[6]
     try:
@@ -50,10 +51,13 @@ for line in sys.stdin:
     # and also checked if trip_dist > straight line dist
     if not valid_trip_time(pickupDate, dropoffDate):
         continue
-    #update the travel_time_in_secs column if difference < 6hrs
-    if (travel_time_in_secs=(datetime.strptime(dropoff, "%Y-%m-%d %H:%M:%S")-datetime.strptime(pickup, "%Y-%m-%d %H:%M:%S")).total_seconds()) > 6*60*60:
-    	continue
-    row[8]=str(travel_time_in_secs)
+    # update the travel_time_in_secs column if difference < 6hrs
+    travel_time_in_secs = (datetime.strptime(dropoffDate, "%Y-%m-%d %H:%M:%S") - datetime.strptime(pickupDate,
+                                                                                                   "%Y-%m-%d %H:%M:%S")).total_seconds()
+    if travel_time_in_secs > 6 * 60 * 60:
+        continue
+    row[8] = str(travel_time_in_secs)
+
     straight_line_dist = calculate_distance(pick, drop)
     if straight_line_dist <= 0:
         continue
@@ -68,3 +72,4 @@ for line in sys.stdin:
     row[-5] = str(distance)
     print "%d\t%s" % (count, ",".join(row))
     count += 1
+
