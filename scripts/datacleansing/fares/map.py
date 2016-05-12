@@ -11,10 +11,6 @@ def convert_to_cents(val):
         val = 0
     return int(val)
 
-
-def calc_total_amount(fare, sur, tax, tip, toll):
-    return fare + sur + tax + tip + toll
-
 count = 0
 
 for line in sys.stdin:
@@ -25,7 +21,10 @@ for line in sys.stdin:
         columns = line.split(',')
         try:
             l2 = list(convert_to_cents(x) for x in columns[5:-1])
-            l2.append(sum(l2))
+            #remove all tuples with total amount > $500, possible outliers
+            if (temp_total_amount=sum(l2))>50000:
+                continue
+            l2.append(temp_total_amount)
 
             print '%d\t%s,%s' % (count, ','.join(columns[:5]), ','.join(str(x) for x in l2))
             count += 1

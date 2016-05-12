@@ -50,6 +50,10 @@ for line in sys.stdin:
     # and also checked if trip_dist > straight line dist
     if not valid_trip_time(pickupDate, dropoffDate):
         continue
+    #update the travel_time_in_secs column if difference < 6hrs
+    if (travel_time_in_secs=(datetime.strptime(dropoff, "%Y-%m-%d %H:%M:%S")-datetime.strptime(pickup, "%Y-%m-%d %H:%M:%S")).total_seconds()) > 6*60*60:
+    	continue
+    row[8]=str(travel_time_in_secs)
     straight_line_dist = calculate_distance(pick, drop)
     if straight_line_dist <= 0:
         continue
