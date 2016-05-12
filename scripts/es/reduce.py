@@ -21,17 +21,27 @@ for line in sys.stdin:
 	l = len(columns)
 	n =0
 	for field in fieldnames:
-        #To store the location as a geo point in es...we have to modify in the join
 		if field == 'pickup_location' or field == 'dropoff_location':
 			data[field]=columns[n+1]+","+columns[n]
 			n = n+2
+		elif field == 'rate_code':
+			code = int(columns[n])
+			if code == 2:
+				data[field] = "JFK and Manhattan"
+			elif code == 3:
+				data[field] = "Newark Airport"
+			elif code == 1:
+				data[field] = "City Limit"
+			else:
+				data[field] = "Outside City"
+			n = n+1
 		else:
 			data[field] = columns[n]
 			n = n+1
 	sys.stdout.write('{"index" : {"_index" : "taxifarejoin" , "_type" : "taxifare" , "_id" : "%s%s"}}\n'%(currentMapId,count))
 	s ="{"
 	for field in fieldnames:
-		s = s+'"%s" : "%s" '%(field,data[field])
+		s = s +'"%s" : "%s" '%(field,data[field])
 		#print('%s %s'%(fieldnames[-1],field))
 		if fieldnames[-1] != field:
 			s = s+ " , "

@@ -12,7 +12,7 @@ def pushData(dir):
 	for subdir, dirs, documents in os.walk(dir):
     		for document in documents:
         		f = os.path.join(subdir, document)
-			r = requests.post('http://search-perspectix-3p663ekdctlax3ve6gqmrel6kq.us-west-2.es.amazonaws.com/_bulk',data=file(f,'rb').read())
+			r = requests.post(<amazon-url>,data=file(f,'rb').read())
     			print("%s,%s"%(r.status_code,r.text))
 
 
