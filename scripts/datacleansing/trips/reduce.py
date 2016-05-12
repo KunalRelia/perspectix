@@ -2,59 +2,90 @@
 
 
 import StringIO
-import csv  # imports the csv module
+import csv
 import json
-import os
 import sys
 import urllib2
-from math import sin, cos, sqrt, atan2, radians
 
+polygons = []
+manhattan = [
+    [-73.9325, 40.88029],
+    [- 74.0178, 40.7561],
+    [- 74.0324, 40.69548],
+    [- 73.97335, 40.70693],
+    [- 73.9545, 40.75186],
+    [- 73.91706, 40.78858],
+    [- 73.92117, 40.84862],
+    [- 73.89819, 40.87378]
+]
+queens = [
+    [-73.96683, 40.73321],
+    [- 73.87207, 40.63428],
+    [- 73.88649, 40.61082],
+    [- 73.87207, 40.58736],
+    [- 73.96889, 40.54511],
+    [- 73.70865, 40.52946],
+    [- 73.70865, 40.66215],
+    [- 73.6785, 40.73045],
+    [- 73.7715, 40.81249],
+    [- 73.83816, 40.80241],
+    [- 73.8999, 40.79927],
+    [- 73.93858, 40.78163]
+]
+brooklyn = [
+    [-73.96133, 40.7457],
+    [- 73.88134, 40.72514],
+    [- 73.81989, 40.64574],
+    [- 73.88403, 40.61841],
+    [- 73.87207, 40.57772],
+    [- 74.02644, 40.55348],
+    [- 74.04295, 40.66957]
+]
+manhattan_inner = [
+    [-74.01609, 40.70459],
+    [-74.00908, 40.72806],
+    [-74.00871, 40.74017],
+    [-74.00689, 40.74825],
+    [-73.98229, 40.78597],
+    [-73.9385, 40.8481],
+    [-73.93164, 40.84524],
+    [-73.93764, 40.83135],
+    [-73.9337, 40.79621],
+    [-73.94829, 40.77924],
+    [-73.94503, 40.7756],
+    [-73.97919, 40.73672],
+    [-73.9749, 40.72814],
+    [-73.97936, 40.71252]
+]
 
-polygons= []
-def calculateDistance(pickupLat,pickupLon,dropLat,dropLon):
-	R = 3959
-
-	lat1 = radians(pickupLat)
-	lon1 = radians(pickupLon)
-	lat2 = radians(dropLat)
-	lon2 = radians(dropLon)
-
-	dlon = lon2 - lon1
-	dlat = lat2 - lat1
-
-	a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
-	c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-	distance = R * c
-
-	return distance
 
 
 def is_left(p0, p1, p2):
     return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p2[0] - p0[0]) * (p1[1] - p0[1])
 
 
-def wn_PnPoly(P, V):
+def wn_point_in_poly(point, polygon):
     wn = 0  # the winding number counter
 
     # repeat the first vertex at end
-    V = tuple(V[:]) + (V[0],)
+    polygon = tuple(polygon[:]) + (polygon[0],)
 
     # loop through all edges of the polygon
-    for i in range(len(V) - 1):  # edge from V[i] to V[i+1]
-        if V[i][1] <= P[1]:  # start y <= P[1]
-            if V[i + 1][1] > P[1]:  # an upward crossing
-                if is_left(V[i], V[i + 1], P) > 0:  # P left of edge
+    for i in range(len(polygon) - 1):  # edge from V[i] to V[i+1]
+        if polygon[i][1] <= point[1]:  # start y <= P[1]
+            if polygon[i + 1][1] > point[1]:  # an upward crossing
+                if is_left(polygon[i], polygon[i + 1], point) > 0:  # P left of edge
                     wn += 1  # have a valid up intersect
         else:  # start y > P[1] (no test needed)
-            if V[i + 1][1] <= P[1]:  # a downward crossing
-                if is_left(V[i], V[i + 1], P) < 0:  # P right of edge
+            if polygon[i + 1][1] <= point[1]:  # a downward crossing
+                if is_left(polygon[i], polygon[i + 1], point) < 0:  # P right of edge
                     wn -= 1  # have a valid down intersect
     return wn
 
 
 def get_nyc_bounds():
-    url = "http://catalog.civicdashboards.com/dataset/e5bbe399-aee4-45d4-a7d3-d6ece7f18bf4/resource/a31b967f-3df2-47da-ac67-50fa420f9cb2/download/9a2703e0737d4aab855017ff2d636603nycboroughboundaries.geojson"
+    url = "http://catalog.civicdashboards.com/dataset/e5bbe399-aee4-45d4-a7d3-d6ece7f18bf4/resource/" \
+          "a31b967f-3df2-47da-ac67-50fa420f9cb2/download/9a2703e0737d4aab855017ff2d636603nycboroughboundaries.geojson"
     req = urllib2.Request(url, headers={'User-Agent': "Magic Browser"})
     con = urllib2.urlopen(req)
     data = json.loads(con.read(), )
@@ -71,40 +102,57 @@ def get_nyc_bounds():
     return data
 
 
-def is_in_nyc(p, borough=None):
-    i = 0
+def check_bounds_in(p, borough=None):
     for polygon in polygons:
         if borough is not None:
             if borough not in polygon[0]:
                 continue
-        if wn_PnPoly(p, polygon[1]) != 0:
-            return [True, i]
-        i += 1
+        if wn_point_in_poly(p, polygon[1]) != 0:
+            return True
     return False
 
 
 def is_in_manhattan(p):
-    return is_in_nyc(p, "Manhattan")
+    if wn_point_in_poly(p, manhattan_inner) != 0:
+        return True
+    if wn_point_in_poly(p, manhattan) != 0:
+        return check_bounds_in(p, "Manhattan")
+    return False
 
 
 def is_in_queens(p):
-    return is_in_nyc(p, "Queens")
+    if wn_point_in_poly(p, queens) != 0:
+        return check_bounds_in(p, "Queens")
+    return False
 
 
 def is_in_bkln(p):
-    return is_in_nyc(p, "Brooklyn")
+    if wn_point_in_poly(p, brooklyn) != 0:
+        return check_bounds_in(p, "Brooklyn")
+    return False
 
 
 def is_in_bronx(p):
-    return is_in_nyc(p, "Bronx")
+    return check_bounds_in(p, "Bronx")
+
+
+def in_nyc(p):
+    if is_in_manhattan(p):
+        return True
+    if is_in_queens(p):
+        return True
+    if is_in_bkln(p):
+        return True
+    return is_in_bronx(p)
 
 
 def main():
-    '''
+    """
     Input file: trip data
-    '''
+    """
     get_nyc_bounds()
     for line in sys.stdin:
+        key, line = line.split('\t', 1)
         csv_file = StringIO.StringIO(line.strip())
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:  # iterates the rows of the file in orders
@@ -115,9 +163,7 @@ def main():
                 drop = map(float, row[-2:])
             except ValueError:
                 continue
-            if is_in_nyc(pick) and is_in_nyc(drop):
-		distance = calculateDistance(pick[0],pick[1],drop[0],drop[1])
-		row[-5] = str(distance)
+            if in_nyc(pick) and in_nyc(drop):
                 print ",".join(row)
 
 
