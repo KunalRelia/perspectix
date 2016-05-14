@@ -8,12 +8,8 @@ import os
 # input comes from STDIN (stream data that goes to the program)
 for line in sys.stdin:
     
-    	day, location = line.strip().split("\t", 1)
+    	lat,long = line.strip().split(",")
     
-    	try:
-        	long,lat = location.split(',')
-    	except ValueError:
-   		continue
 
 	sys.stdout.write('{"index" : {"_index" : "maps" , "_type" : "dropoff" } }\n')
         s ='{ "type" : "Feature" , "geometry" : { "type" : "Point" , '

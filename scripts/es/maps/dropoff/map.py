@@ -17,4 +17,4 @@ for line in sys.stdin:
     	day = convertToDate(pickUpDateTime)
 	highest = "2013-02-23"
 	if day == highest:
-		print '%s\t%s,%s'%(day,dropOffLong,dropOffLat)
+		print '%s,%s'%(dropOffLong,dropOffLat)

@@ -7,11 +7,14 @@ def convertToDate(val):
 
 for line in sys.stdin:
     	line = line.strip()
-	key,values = line.split("\t",1)
+	key,columns = line.split("\t",1)
 
-    	keys = key.split(',')
-	value = values.split(',')
-    	pickUpDateTime = keys[3]
+	keys = key.split(',')
+	pickUpDateTime = keys[3]
+    	columns = columns.split(',')
+    	pickupLong = columns[6]
+	pickupLat = columns[7]
     	day = convertToDate(pickUpDateTime)
-	type = value[10]
-	print '%s\t%s,%s'%(day,type,1)
+	highest = "2013-02-23"
+	if day == highest:
+		print '%s,%s'%(pickupLong,pickupLat)
