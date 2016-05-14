@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="nv-d3/build/nv.d3.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
+    <script src="nv-d3/build/nv.d3.js"></script>
+    <script   src="https://code.jquery.com/jquery-2.2.3.min.js"   integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
+    
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
+
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+    <style>
+        text {
+            font: 12px sans-serif;
+        }
+        svg {
+            display: block;
+        }
+        html , body {
+            margin : 2% 5% 5% 5%;
+        }
+         #chart1,#chart2,#chart3, svg {
+            margin: 4% 4% 4% 5%;
+            padding: 5px;
+            width:80%;
+            height:80%;
+        }
+        #reportrange {
+            margin-left:30%;
+            margin-bottom:2%;
+            float:left!important;
+        }
+        .nv-axis.nv-y1 .tick line {
+            display:none;
+        }
+        .nv-axis.nv-y2  .tick line {
+            display:none;
+        }
+        .nvd3 .nv-axis.nv-x path.domain {
+          stroke-opacity: 1;
+        }
+        
+    </style>
+</head>
+<body>
+<div class="container" style="margin-bottom:2%;">
+<h2 style="margin-left:37%;font-style:bold;color:rgba(203, 189, 22, 0.83);">Perspectix</h2>
+<div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 29%">
+    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+    <span></span> <b class="caret"></b>
+</div>
+    </div>
+    
+<!--div class="container">
+  
+  <ul style="margin-left:33%;" class="list-inline">
+    <li><a onclick="loadChart1();">Weather-Taxi</a></li>
+    <li><a onclick="loadChart2();">Payment Type</a></li>
+    <li><a onclick="loadChart3();">Distance</a></li>
+  </ul>
+</div-->
+<div id="chart1">
+    <svg></svg>
+</div>
+<div id="chart2">
+    <svg></svg>
+</div>
+<div id="chart3">
+    <svg></svg>
+</div>
+
+<script>
+    
+    var startDate;
+    var endDate;  
+    var chart1;
+    var chart2;
+    var chart3;
+   $(function() {
+    var availableDates = ["01-01-2013","31-12-2013"];
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        startDate = start.format('YYYY-MM-DD');
+        endDate = end.format('YYYY-MM-DD'); 
+        dataPoints = [];
+        
+        d3.selectAll("svg > *").remove();
+        
+        loadDayTrips();
+        
+        paymentTypeData();
+       
+        binData();
+        
+         $("#chart3").css("display","block");
+        $("#chart1").css("display","none");
+        $("#chart2").css("display","none");
+        
+    }
+    cb(moment("01-01-2013", "MM-DD-YYYY"), moment("12-31-2013", "MM-DD-YYYY"));
+       
+    var start = new Date(2013, 1, 1);
+    var end = new Date(2013, 12, 31);
+
+    $('#reportrange').daterangepicker({        
+        startDate: start,
+        endDate: end,
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+});
+    
+    
+    function loadChart1() {
+       $("#chart1").css("display","block");
+        $("#chart2").css("display","none");
+        $("#chart3").css("display","none");
+    }
+    function loadChart2() {
+         $("#chart1").css("display","none");
+        $("#chart2").css("display","block");
+        $("#chart3").css("display","none");
+    }
+    function loadChart3() {
+         /*$("#chart3").show();
+        $("#chart2").hide();
+        $("#chart1").hide();*/
+    }
+    
+    function loadDayTrips() {
+        var dataQuery1 = {"sort" : [ { "pickupday" : {"order" : "asc"}}] ,"size":50000000,"query": { "filtered": { "query": { "match_all": {}  },"filter": {  "range": {  "pickupday": {  "gte": startDate,  "lte": endDate   }   }    } }  }};
+
+        $.ajax({
+            type: "POST",
+            url: <aws es service>,
+            data: JSON.stringify(dataQuery1),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                
+                
+                series1 = {};
+                series1["key"] = "Taxi"
+                series1["values"]= [];
+                for(i =0;i<data["hits"]["hits"].length;i++) {
+                    o = data["hits"]["hits"][i]["_source"];
+                    date = Date.parse(o["pickupday"]);
+                    records =[];
+                    records.push(date);
+                    records.push(parseInt(o["count"]));
+                    series1["values"].push(records);
+                }
+                series1["type"]= "line";
+                series1["yAxis"]= 1;
+                
+                dataPoints.push(series1);
+                loadWeatherDay();
+                
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+        
+    }
+    function loadWeatherDay() {
+        var dataQuery2 = {"sort" : [ { "day" : {"order" : "asc"}}] ,"size":50000000,"query": { "filtered": { "query": { "match_all": {}  },"filter": {  "range": {  "day": {  "gte": startDate,  "lte": endDate   }   }    } }  }};
+
+        $.ajax({
+            type: "POST",
+            url: <aws es service>,
+            data: JSON.stringify(dataQuery2),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+               
+                series2 = {};
+                series2["key"] = "Weather"
+                series2["values"]= [];
+                for(i =0;i<data["hits"]["hits"].length;i++) {
+                    o = data["hits"]["hits"][i]["_source"];
+                    date = Date.parse(o["day"]);
+                    records =[];
+                    records.push(date);
+                    records.push(parseInt(o["max"]));
+                    series2["values"].push(records);
+                }
+                series2["type"]= "line";
+                series2["yAxis"]= 2;
+                
+                dataPoints.push(series2);
+                onLoad(dataPoints);
+
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+        
+        
+        
+        
+        }
+        
+        function onLoad(weatherTrips) {
+        nv.addGraph(function() {
+            chart1 = nv.models.multiChart()
+                .margin({top: 0, right: 60, bottom: 60, left: 70})
+                .x(function(d) { return d[0] })
+                .y(function(d) { return d[1] }) 
+                .color(d3.scale.category10().range())
+                .useInteractiveGuideline(true)
+                ;
+            chart1.xAxis
+                .tickFormat(function(d) {
+                            return d3.time.format('%x')(new Date(d))
+                })
+                .rotateLabels(-45)
+                .axisLabel('Date')
+                .axisLabelDistance(4);
+
+            
+    
+            chart1.yAxis1
+                .tickFormat(d3.format(','))
+                .axisLabel('Trip Count')
+                .axisLabelDistance(4);
+            chart1.yAxis2
+                .tickFormat(function(d) { return d + " F"; })
+                .axisLabel('Temperature (in Fahreinheit)')
+                .axisLabelDistance(1);
+            d3.select('#chart1 svg')
+                .datum(weatherTrips)
+                .transition().duration(500).call(chart1);
+            nv.utils.windowResize(chart1.update);
+
+            return chart1;
+        });
+        }
+    
+        
+  function paymentTypeData() {
+        
+        var dataQuery3 = {"sort" : [ { "day" : {"order" : "asc"}}] ,"size":50000000,"query": { "filtered": { "query": { "match_all": {}  },"filter": {  "range": {  "day": {  "gte": startDate,  "lte": endDate    }   }    } }  }};
+
+        
+        $.ajax({
+            type: "POST",
+            url: <aws es service>,
+            data: JSON.stringify(dataQuery3),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                points = [];
+                bars1={};
+                bars2={};
+                bars3={};
+                bars1["key"] = "Card";
+                bars1["values"] = [];
+                bars2["key"] = "Cash";
+                bars2["key"] = "Cash";
+                bars2["values"] = [];
+                bars3["key"] = "Others";
+                bars3["values"] = [];
+                for(i =0;i<data["hits"]["hits"].length;i++) {
+                    o = data["hits"]["hits"][i]["_source"];
+                    date = Date.parse(o["day"]);
+                    p1 = parseInt(o["CSH"]);
+                    p2 = parseInt(o["CRD"]);
+                    p3 = parseInt(o["Others"]);
+                    cash ={};
+                    cash["x"] = date;
+                    cash["y"] = p1;
+                    
+                    crd ={};
+                    crd["x"] = date;
+                    crd["y"] = p2;
+                    
+                    others ={};
+                    others["x"] = date;
+                    others["y"] = p3;
+                    
+                    
+                    
+                    bars1["values"].push(cash);
+                    bars2["values"].push(crd);
+                    bars3["values"].push(others);
+                }
+                
+                points.push(bars1);
+                points.push(bars2);
+                points.push(bars3);
+                
+                loadPaymentDay(points);
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+        
+    }  
+    function loadPaymentDay(points) {
+        nv.addGraph(function() {
+    chart2 = nv.models.multiBarChart()
+      //.margin({top: 0, right: 0, bottom: 10, left: 100})
+      //.width(1600)
+      //.height(500)
+      .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+      .rotateLabels(0)      //Angle to rotate x-axis labels.
+      .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+      .groupSpacing(0.1)    //Distance between each group of bars.
+    ;
+
+    chart2.xAxis
+        .tickFormat(function(d) {
+                            return d3.time.format('%x')(new Date(d))
+        })
+        //.rotateLabels(-45)
+        .axisLabel('Date')
+        .axisLabelDistance(4);
+       
+
+    chart2.yAxis
+        .tickFormat(function(d) { return d + "%"; })
+        .axisLabel('Trip Count')
+        .axisLabelDistance(4);
+
+            
+    d3.select('#chart2 svg')
+        .datum(points)
+        .call(chart2);
+
+    nv.utils.windowResize(chart2.update);
+
+    return chart2;
+        });
+    }
+    
+    function binData() {
+        
+        var dataQuery4 = {"size":50000000,"sort" : [ { "distanceRange" : {"order" : "desc"}}] ,"query": { "filtered": { "query": { "match_all": {}  }}  }};
+
+        
+        $.ajax({
+            type: "POST",
+            url: <aws es service>,
+            data: JSON.stringify(dataQuery4),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                bins = [];
+                series={};
+               
+                series["key"] = "Distance Ranges";
+                series["values"] = [];
+                
+                for(i =0;i<data["hits"]["hits"].length;i++) {
+                    o = data["hits"]["hits"][i]["_source"];
+                    
+                   
+                    range ={};
+                    range["label"] =  o["distanceRange"];
+                    range["value"] = parseInt(o["count"]);
+                    
+                    
+                    
+                    
+                    series["values"].push(range);
+                    
+                }
+                
+                bins.push(series);
+                
+                
+                tripDistance(bins);
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+        
+    }  
+    
+function tripDistance(data) {
+      nv.addGraph(function() {
+        chart3 = nv.models.multiBarHorizontalChart()
+            .x(function(d) { return d.label })
+            .y(function(d) { return d.value })
+            //.margin({top: 30, right: 20, bottom: 50, left: 70})
+            //.width(1600)
+            //.height(500)
+            .showValues(true)           //Show bar value next to each bar.
+            //.tooltips(true)             //Show tooltips on hover.
+            //.transitionDuration(350)
+            .showControls(true);        //Allow user to switch between "Grouped" and "Stacked" mode.
+
+        chart3.yAxis
+            .tickFormat(d3.format(','))
+            .axisLabel('Trip Count')
+            .axisLabelDistance(4);
+        
+        chart3.xAxis
+            .axisLabel('Distance Range')
+            .axisLabelDistance(4);
+
+        d3.select('#chart3 svg')
+            .datum(data)
+            .call(chart3);
+
+        nv.utils.windowResize(chart3.update);
+
+        return chart3;
+      });
+ }
+
+    
+
+
+</script>
+</body></html>
